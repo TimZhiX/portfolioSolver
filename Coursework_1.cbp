@@ -32,9 +32,10 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="Matrix.cpp" />
+		<Unit filename="Matrix.h" />
 		<Unit filename="csv.cpp" />
 		<Unit filename="csv.h" />
-		<Unit filename="matrix.h" />
 		<Unit filename="read_data.cpp" />
 		<Extensions>
 			<code_completion />
