@@ -1,4 +1,6 @@
 #include <iostream>
+#include <sstream>
+#include <stdio.h>
 #include "csv.h"
 #include "matrix.h"
 #include "CGM.h"
@@ -11,9 +13,10 @@ using namespace std;
 
 int  main (int argc, char *argv[])
 {
-
-    int numberAssets = 83;
-    int numberReturns = 700;
+    int numberAssets = 83;                              // set number of assets as 83
+    int numberReturns = 700;                            // set number of all days as 700
+    int insReturns = 100;                               // set in-sample window size as 100 days
+    int oosReturns = 12;                                // set out_of_sample window size as 12 days
 
     // Dynamic Array
     double **retMatrix = new double*[numberAssets];     // matrix to store return
@@ -33,75 +36,88 @@ int  main (int argc, char *argv[])
     // returnMatrix[i][j] stores the value of asset i, return j
     readData(retMatrix, fileName);
 
-    // set initial window size as 100 days
-    numberReturns = 100;
+    // set precision
+    cout << fixed << setprecision(4);
 
-    // calculate the average return
-    cal_mean(meanMatrix, retMatrix, numberAssets, numberReturns);
 
-    // calculate covariance matrix
-    cal_cov(covMatrix, meanMatrix, retMatrix, numberAssets, numberReturns);
-
-    // initialize input
-    Matrix Q(85,85);
-    for (int i = 0; i < 83; i++)
-        for (int j = 0; j < 83; j++)
-            Q.set(i,j,covMatrix[i][j]);
-
-    for (int i = 0; i < 83; i++)
+    // --------------------------------------------------------------------------------------------------------------
+    for(int cnt = 0; cnt < 20; cnt++ )
     {
-        Q.set(83,i,-meanMatrix[i]);
-        Q.set(84,i,-1);
-        Q.set(i,83,-meanMatrix[i]);
-        Q.set(i,84,-1);
+        double targetReturn = cnt / 200.0; // set target return range from 0 to 0.1 (split into 20 parts)
+        cout << "\nNo." << cnt << " target return : " << targetReturn << endl;
+
+        // ready for output
+        stringstream outFileName;
+        outFileName << "out_" << targetReturn << ".csv";
+        FILE *outFile = fopen(outFileName.str().c_str(), "w");
+        int numberWins = 0; // flag to check if oos beat ins
+
+        for(int startDay = 0; startDay < numberReturns-insReturns; startDay += oosReturns)
+        {
+
+            // calculate the average return
+            cal_mean(meanMatrix, retMatrix, numberAssets, insReturns, startDay);
+
+            // calculate covariance matrix
+            cal_cov(covMatrix, meanMatrix, retMatrix, numberAssets, insReturns, startDay);
+
+            // initialize input for optimization
+            Matrix Q(numberAssets+2,numberAssets+2);
+            for (int i = 0; i < numberAssets; i++)
+                for (int j = 0; j < numberAssets; j++)
+                    Q.set(i,j,covMatrix[i][j]);
+
+            for (int i = 0; i < numberAssets; i++)
+            {
+                Q.set(numberAssets,i,-meanMatrix[i]);
+                Q.set(numberAssets+1,i,-1);
+                Q.set(i,numberAssets,-meanMatrix[i]);
+                Q.set(i,numberAssets+1,-1);
+            }
+
+            Matrix x0(numberAssets+2,1);
+            for (int i = 0; i < numberAssets; i++)
+                x0.set(i,0,1./numberAssets);            // initial weights
+
+            Matrix b(numberAssets+2,1);
+            b.set(numberAssets,0,-targetReturn);        // set target return of portfolio (rp)
+            b.set(numberAssets+1,0,-1);
+
+            // Conjugate Gradient Method to get optimized weights
+            x0 = CGM(x0,Q,b);
+
+
+
+            // --------------------------------------------------------------------------------------------------------------
+            // Backtesting
+            double mean_oos = 0;
+            double cov_oos = 0;
+
+            cout << "startDay : " << startDay << "\t\t";
+            cal_mean(meanMatrix, retMatrix, numberAssets, oosReturns, startDay);
+            cal_cov(covMatrix, meanMatrix, retMatrix, numberAssets, oosReturns, startDay);
+
+            for(int i = 0; i < numberAssets; i++)
+                mean_oos += x0.get(i,0) * meanMatrix[i];
+            cout << "mean_oos = " << mean_oos << "\t";
+
+            Matrix covMatrix_oos(covMatrix,numberAssets,numberAssets);      // turn Array into Matrix class
+            Matrix w = x0.getSubMatrix(0,numberAssets-1,0,0);
+            cov_oos = (w.Trans() * covMatrix_oos * w).get(0,0);
+            cout <<"cov_oos = " << cov_oos << endl;
+
+            // --------------------------------------------------------------------------------------------------------------
+            // Performance Evaluation
+            if (mean_oos > targetReturn) numberWins++;
+
+
+            // --------------------------------------------------------------------------------------------------------------
+            // output results
+            fprintf(outFile,"%f,%f\n", mean_oos, cov_oos);
+        }
+        cout << "win Ratio : " << numberWins*1.0 / ( (numberReturns-insReturns)/oosReturns ) << endl;
+        fclose(outFile);
     }
-
-
-    Matrix x0(85,1);
-    for (int i = 0; i < 83; i++)
-        x0.set(i,0,1./83); // initial weights
-
-
-    Matrix b(85,1);
-    b.set(83,0,-0.1);   // set target return of portfolio (rp)
-    b.set(84,0,-1);
-
-    // Conjugate Gradient Method to get optimized weights
-    x0 = CGM(x0,Q,b);
-
-
-
-    /////////////////////////////////////////////////////
-    // Back testing
-
-
-    //calculate the average return
-    double mean_oos = 0;
-    double cov_oos = 0;
-    int startDay = 100;
-    numberReturns = 12;
-    cal_mean(meanMatrix, retMatrix, numberAssets, numberReturns, startDay);
-
-
-    for(int i = 0; i < numberAssets; i++)
-        mean_oos += x0.get(i,0) * meanMatrix[i];
-    cout << "mean_oos = " << mean_oos << endl;
-
-    // calculate covariance matrix
-    cal_cov(covMatrix, meanMatrix, retMatrix, numberAssets, numberReturns, startDay);
-    Matrix covMatrix_oos(covMatrix,83,83);  // turn Array into Matrix class
-    Matrix w = x0.getSubMatrix(0,82,0,0);
-    cov_oos = (w.Trans() * covMatrix_oos * w).get(0,0);
-    cout <<"cov_oos = " << cov_oos << endl;
-
-
-//////////////////////////////////////////////
-
-
-
-
-
-
 
 
 

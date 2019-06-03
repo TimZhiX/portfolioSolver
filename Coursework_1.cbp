@@ -32,11 +32,21 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="CGM.cpp" />
+		<Unit filename="CGM.h" />
+		<Unit filename="Main.cpp" />
 		<Unit filename="Matrix.cpp" />
 		<Unit filename="Matrix.h" />
+		<Unit filename="cal_cov.cpp" />
+		<Unit filename="cal_cov.h" />
+		<Unit filename="cal_mean.cpp" />
+		<Unit filename="cal_mean.h" />
 		<Unit filename="csv.cpp" />
 		<Unit filename="csv.h" />
-		<Unit filename="read_data.cpp" />
+		<Unit filename="readData.cpp" />
+		<Unit filename="readData.h" />
+		<Unit filename="string_to_double.cpp" />
+		<Unit filename="string_to_double.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
