@@ -1,3 +1,8 @@
+/*****************************************************************************
+File name: string_to_double.h
+Description: change type string to type double
+*****************************************************************************/
+
 #pragma once
 #include <string.h>
 #include <iostream>

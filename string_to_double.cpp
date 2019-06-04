@@ -1,3 +1,8 @@
+/*****************************************************************************
+File name: string_to_double.cpp
+Description: change type string to type double
+*****************************************************************************/
+
 #include "string_to_double.h"
 #include <sstream>
 

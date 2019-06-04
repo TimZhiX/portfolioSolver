@@ -1,3 +1,8 @@
+/*****************************************************************************
+File name: Matrix.h
+Description: Class Matrix
+*****************************************************************************/
+
 #pragma once
 #include <iostream>
 #include <iomanip>
@@ -20,7 +25,8 @@ public:
 
     Matrix Trans() const;                    // Transpose
     Matrix Inverse();                        // Inverse
-    Matrix getSubMatrix(int startRow, int endRow, int startColumn, int endColumn); // get SubMatrix
+    Matrix getSubMatrix(int startRow, int endRow, int startColumn, int endColumn); 
+											 // get SubMatrix
 
     double get(int i, int j) const;          // get element
     void set(int i, int j, double val);      // set element
@@ -32,7 +38,8 @@ public:
     Matrix& operator=(const Matrix& m);      // copy Matrix
 
 
-    friend std::ostream& operator <<(std::ostream &os, const Matrix &m); // overloading
+    friend std::ostream& operator <<(std::ostream &os, const Matrix &m); 
+	                                         // overloading
 
 private:
     double *item;                            // point to the first element in Matrix
@@ -40,7 +47,7 @@ private:
     int colNum;                              // number of cols
 
 private:
-    // Elementary Transformation
+											 // Elementary Transformation
     void RowSwap(int i, int j, double multiply);
     void RowSwap(int i, int j);
     void FlowOver();

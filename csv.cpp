@@ -1,3 +1,8 @@
+/*****************************************************************************
+File name: csv.cpp
+Description: read csv file
+*****************************************************************************/
+
 #include "csv.h"
 
 // endofline: check for and consume \r, \n, \r\n, or EOF

@@ -1,3 +1,8 @@
+/*****************************************************************************
+File name: cal_mean.cpp
+Description: calculate mean matrix
+*****************************************************************************/
+
 #include "cal_mean.h"
 
 void cal_mean(double *meanMatrix, double **retMatrix, int numberAssets, int numberReturns)
@@ -14,7 +19,7 @@ void cal_mean(double *meanMatrix, double **retMatrix, int numberAssets, int numb
 
 void cal_mean(double *meanMatrix, double **retMatrix, int numberAssets, int numberReturns, int startDay)
 {
-    //calculate the average return
+    //calculate the average return from specific startDay
     for(int i = 0; i < numberAssets; i++)
     {
         double mean = 0;

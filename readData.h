@@ -1,3 +1,8 @@
+/*****************************************************************************
+File name: readData.h
+Description: read data from file
+*****************************************************************************/
+
 #pragma once
 #include <fstream>
 #include <string.h>

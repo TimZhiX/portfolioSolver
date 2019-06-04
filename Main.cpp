@@ -1,3 +1,8 @@
+/*****************************************************************************
+File name: Main.cpp
+Description: Main Function
+*****************************************************************************/
+
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
@@ -13,10 +18,10 @@ using namespace std;
 
 int  main (int argc, char *argv[])
 {
-    int numberAssets = 83;                              // set number of assets as 83
-    int numberReturns = 700;                            // set number of all days as 700
-    int insReturns = 100;                               // set in-sample window size as 100 days
-    int oosReturns = 12;                                // set out_of_sample window size as 12 days
+    int numberAssets = 83;                   // set number of assets as 83
+    int numberReturns = 700;                 // set number of all days as 700
+    int insReturns = 100;                    // set in-sample window size as 100 
+    int oosReturns = 12;                     // set out_of_sample window size as 12
 
     // Dynamic Array
     double **retMatrix = new double*[numberAssets];     // matrix to store return
@@ -33,18 +38,19 @@ int  main (int argc, char *argv[])
     // read the data
     string fileName = "asset_returns.csv";
 
-    // returnMatrix[i][j] stores the value of asset i, return j
+    // retMatrix[i][j] stores the value of asset i, return j
     readData(retMatrix, fileName);
 
     // set precision
     cout << fixed << setprecision(4);
 
+    // ----------------------------------------------------------------------------
+    // Parameter Estimation
 
-    // --------------------------------------------------------------------------------------------------------------
     for(int cnt = 0; cnt < 20; cnt++ )
     {
         double targetReturn = cnt / 200.0; // set target return range from 0 to 0.1 (split into 20 parts)
-        cout << "\nNo." << cnt << " target return : " << targetReturn << endl;
+        cout << "\nNo." << cnt + 1 << " target return : " << targetReturn << endl;
 
         // ready for output
         stringstream outFileName;
@@ -86,10 +92,8 @@ int  main (int argc, char *argv[])
             // Conjugate Gradient Method to get optimized weights
             x0 = CGM(x0,Q,b);
 
-
-
-            // --------------------------------------------------------------------------------------------------------------
-            // Backtesting
+            // --------------------------------------------------------------------------
+			// Backtesting
             double mean_oos = 0;
             double cov_oos = 0;
 
@@ -101,27 +105,23 @@ int  main (int argc, char *argv[])
                 mean_oos += x0.get(i,0) * meanMatrix[i];
             cout << "mean_oos = " << mean_oos << "\t";
 
-            Matrix covMatrix_oos(covMatrix,numberAssets,numberAssets);      // turn Array into Matrix class
+			// turn Array into Matrix class
+            Matrix covMatrix_oos(covMatrix,numberAssets,numberAssets);      
             Matrix w = x0.getSubMatrix(0,numberAssets-1,0,0);
             cov_oos = (w.Trans() * covMatrix_oos * w).get(0,0);
             cout <<"cov_oos = " << cov_oos << endl;
 
-            // --------------------------------------------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
             // Performance Evaluation
             if (mean_oos > targetReturn) numberWins++;
 
-
-            // --------------------------------------------------------------------------------------------------------------
+            // --------------------------------------------------------------------------
             // output results
             fprintf(outFile,"%f,%f\n", mean_oos, cov_oos);
         }
         cout << "win Ratio : " << numberWins*1.0 / ( (numberReturns-insReturns)/oosReturns ) << endl;
         fclose(outFile);
     }
-
-
-
-
 
     // free memory
     for(int i = 0; i < numberAssets; i++)

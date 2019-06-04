@@ -1,3 +1,8 @@
+/*****************************************************************************
+File name: cal_cov.cpp
+Description: calculate covariance matrix
+*****************************************************************************/
+
 #include "cal_cov.h"
 
 void cal_cov(double **covMatrix, double *meanMatrix, double **retMatrix, int numberAssets, int numberReturns)

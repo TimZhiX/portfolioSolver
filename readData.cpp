@@ -1,8 +1,11 @@
+/*****************************************************************************
+File name: readData.cpp
+Description: read data from file
+*****************************************************************************/
+
 #include "readData.h"
 #include "csv.h"
 #include "string_to_double.h"
-
-
 
 void readData(double **data, std::string fileName)
 {
