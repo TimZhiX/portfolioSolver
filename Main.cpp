@@ -20,7 +20,7 @@ int  main (int argc, char *argv[])
 {
     int numberAssets = 83;                   // set number of assets as 83
     int numberReturns = 700;                 // set number of all days as 700
-    int insReturns = 100;                    // set in-sample window size as 100 
+    int insReturns = 100;                    // set in-sample window size as 100
     int oosReturns = 12;                     // set out_of_sample window size as 12
 
     // Dynamic Array
@@ -98,15 +98,15 @@ int  main (int argc, char *argv[])
             double cov_oos = 0;
 
             cout << "startDay : " << startDay << "\t\t";
-            cal_mean(meanMatrix, retMatrix, numberAssets, oosReturns, startDay);
-            cal_cov(covMatrix, meanMatrix, retMatrix, numberAssets, oosReturns, startDay);
+            cal_mean(meanMatrix, retMatrix, numberAssets, oosReturns, startDay + insReturns);
+            cal_cov(covMatrix, meanMatrix, retMatrix, numberAssets, oosReturns, startDay + insReturns);
 
             for(int i = 0; i < numberAssets; i++)
                 mean_oos += x0.get(i,0) * meanMatrix[i];
             cout << "mean_oos = " << mean_oos << "\t";
 
 			// turn Array into Matrix class
-            Matrix covMatrix_oos(covMatrix,numberAssets,numberAssets);      
+            Matrix covMatrix_oos(covMatrix,numberAssets,numberAssets);
             Matrix w = x0.getSubMatrix(0,numberAssets-1,0,0);
             cov_oos = (w.Trans() * covMatrix_oos * w).get(0,0);
             cout <<"cov_oos = " << cov_oos << endl;
